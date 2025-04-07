@@ -143,8 +143,6 @@
         const timerDisplayz = document.getElementById('timer');
 
         const RESEND_INTERVAL = 30; 
-
-        // Function to get remaining time from localStorage
         function getRemainingTime() {
             const lastSent = localStorage.getItem('otpLastSent');
             if (!lastSent) return RESEND_INTERVAL;  // If no OTP sent before, return full resend interval
