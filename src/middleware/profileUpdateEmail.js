@@ -4,12 +4,10 @@ const register = require("../models/registers");
 async function profileUpdateEmail(email,otp) {
   try {
     const user = await register.findOne({ email });
-
     if (!user) {
       console.log("User not found for email:", email);
       return "User not found";
     }
-
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
