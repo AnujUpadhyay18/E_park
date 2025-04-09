@@ -141,29 +141,23 @@
         const resendButton = document.getElementById('resendButton');
         const timerDisplay = document.getElementById('time');
         const timerDisplayz = document.getElementById('timer');
-
         const RESEND_INTERVAL = 30; 
         function getRemainingTime() {
             const lastSent = localStorage.getItem('otpLastSent');
-            if (!lastSent) return RESEND_INTERVAL;  // If no OTP sent before, return full resend interval
+            if (!lastSent) return RESEND_INTERVAL; 
             const elapsed = Math.floor((Date.now() - parseInt(lastSent, 10)) / 1000);
-            return Math.max(RESEND_INTERVAL - elapsed, 0);  // Ensure time doesn't go below 0
+            return Math.max(RESEND_INTERVAL - elapsed, 0); 
         }
-
-        // Start the timer on page load or resend
         function startTimer() {
             let timeLeft = getRemainingTime();
-
-
-
             const timer = setInterval(() => {
                 if (timeLeft > 0) {
                     timeLeft--;
                     const seconds = timeLeft;
-                    timerDisplayz.textContent = `Resend available in: ${seconds < 10 ? '0' : ''}${seconds}`;  // Update countdown
+                    timerDisplayz.textContent = `Resend available in: ${seconds < 10 ? '0' : ''}${seconds}`; 
                     if (timeLeft === 0) {
                         clearInterval(timer);
-                        resendButton.disabled = false; // Enable the resend button when timer is over
+                        resendButton.disabled = false; 
                         timerDisplayz.textContent = '';
                     }
                 }
@@ -172,21 +166,19 @@
 
         function resetOTPInputs() {
             otpInputs.forEach(input => input.value = '');
-            hiddenOTPInput.value = '';  // Ensure hidden OTP field is reset
+            hiddenOTPInput.value = ''; 
         }
-
-        // Handle OTP input behavior
         otpInputs.forEach((input, index) => {
             input.addEventListener('input', () => {
                 if (input.value && index < otpInputs.length - 1) {
-                    otpInputs[index + 1].focus();  // Move to next input
+                    otpInputs[index + 1].focus(); 
                 }
-                hiddenOTPInput.value = Array.from(otpInputs).map(i => i.value).join('');  // Update hidden OTP input
+                hiddenOTPInput.value = Array.from(otpInputs).map(i => i.value).join(''); 
             });
 
             input.addEventListener('keydown', (event) => {
                 if (event.key === 'Backspace' && index > 0 && !input.value) {
-                    otpInputs[index - 1].focus();  // Move to previous input on backspace
+                    otpInputs[index - 1].focus(); 
                 }
             });
         });
