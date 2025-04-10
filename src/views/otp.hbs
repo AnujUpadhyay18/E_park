@@ -188,18 +188,12 @@
     .then(response => {
       if (response.status === 200) {
         response.text().then(message => {
-          //alert(message);  // You can use a custom alert here
-          localStorage.setItem('otpLastSent', Date.now());  // Store the time OTP was last sent
-          startTimer();  // Start the resend timer
-
-          // Show success message (you can use your custom notification system)
+          localStorage.setItem('otpLastSent', Date.now());  
+          startTimer(); 
           showMessage("OTP resent successfully.", "success");
         });
       } else if (response.status === 429) {
         response.text().then(message => {
-          //alert(message);  // You can use a custom alert here
-          
-          // Show error message (you can use your custom notification system)
           showMessage(message, "danger");
         });
       }
