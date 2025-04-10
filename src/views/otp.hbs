@@ -202,41 +202,30 @@
 });
 
 function showMessage(message, type) {
-  // Check if there's already an alert message rendered by Handlebars
   const existingAlert = document.querySelector('.alert');
   if (existingAlert) {
-    // If the alert exists, update its message and type
     existingAlert.textContent = message;
     existingAlert.classList.remove("alert-success", "alert-danger");
     existingAlert.classList.add(`alert-${type}`);
     const alertMessage = req.session.alertMessage;
   const alertType = req.session.alertType;
-
-  // Clear the session after using it
   req.session.alertMessage = null;
   req.session.alertType = null;
   } else {
-    // If no alert exists, create a new one
     const alertBox = document.createElement("div");
     alertBox.classList.add("alert", `alert-${type}`, "alert-dismissible", "fade", "show");
     alertBox.textContent = message;
     document.body.appendChild(alertBox);
-
-    // Optionally, auto-remove the message after some time
     setTimeout(() => alertBox.remove(), 1500);
   }
   const alertMessage = req.session.alertMessage;
   const alertType = req.session.alertType;
-
-  // Clear the session after using it
   req.session.alertMessage = null;
   req.session.alertType = null;
 }
-
-        // Initialize everything on window load
         window.addEventListener('load', () => {
-            startTimer(); // Start the timer immediately when the page loads or OTP is resent
-            resetOTPInputs(); // Reset OTP inputs on load
+            startTimer(); 
+            resetOTPInputs(); 
         });
 
     </script>
@@ -245,11 +234,9 @@ function showMessage(message, type) {
             const alert = document.querySelector('.alert');
 
             if (alert) {
-                // Set a timeout to add the fade-out class after 1.5 seconds
+               
                 setTimeout(() => {
                     alert.classList.add('fade-out');
-
-                    // Remove the alert from the DOM after the fade transition (0.5s)
                     setTimeout(() => alert.remove(), 500);
                 }, 1500);
             }
