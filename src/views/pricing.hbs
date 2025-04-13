@@ -191,10 +191,8 @@
     document.querySelectorAll('.action-btn').forEach(btn => {
       btn.addEventListener('click', e => {
         e.preventDefault();
-        // Hide pricing & membership sections
         document.getElementById('pricingSection').classList.add('d-none');
         document.getElementById('membershipSection').classList.add('d-none');
-        // Show receipt
         const modal = document.getElementById('receiptModal');
         modal.classList.remove('d-none');
         AOS.refresh();
