@@ -1,6 +1,6 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
-const app = express();
+const app = express(); 
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
@@ -37,7 +37,7 @@ function isAuthenticated(req, res, next) {
     req.session.redirectTo = req.originalUrl; // Store the route user tried to access
     return res.redirect("/loginsignup"); // Redirect to login/signup page
   }
-  next(); // Proceed if authenticated
+  next(); 
 }
 app.get("/", (req, res) => {
   G_A.ga = null;
@@ -103,7 +103,7 @@ app.get("/services", isAuthenticated, (req, res) => {
   res.render("services");
 });
 app.get("/confirm", (req, res) => {
-  const email = req.session.email; // Get the stored email
+  const email = req.session.email; 
   if (!email) {
     return res.redirect("/forgot"); // If email is missing, redirect to forgot page
   }
