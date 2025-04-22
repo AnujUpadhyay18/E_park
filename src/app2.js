@@ -122,6 +122,10 @@ const productData = {
 }
 app.get("/pricing", isAuthenticated, (req, res) => {
   res.render("pricing", {
+    product_ID : null,
+    productName: null,
+    productPrice: null,
+    productDate: null,
     product_ID: productData.product_ID,
     productName: productData.productName,
     productPrice: productData.productPrice,
@@ -509,7 +513,7 @@ app.post("/product", isAuthenticated, async (req, res) => {
     return res.status(404).json({ message: "User not found." });
   }
   try {
-    const randomProductId = productData.product_ID;
+    const randomProductId = generateRandomProductId();
     const productdadada =
     {
       productDate: moment().tz("Asia/Kolkata").format("DD MMM YYYY, h:mm A"),
