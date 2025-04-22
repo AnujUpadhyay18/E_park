@@ -11,8 +11,20 @@
   <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
   <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
   <link href="assets/css/main.css" rel="stylesheet">
-<meta name="description" content="">
-  <meta name="keywords" content="">
+
+  <!-- Inline CSS for receipt animation -->
+  <style>
+    .receipt-container { padding: 20px; margin-top: 30px; animation: fadeIn 1s ease-out; }
+    .receipt-card { max-width: 600px; margin: 0 auto; border: 1px solid #198754; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; }
+    .receipt-card .card-header { background-color: #198754; color: #fff; text-align: center; padding: 1.5rem; position: relative; }
+    .icon-container { width: 80px; height: 80px; border-radius: 50%; background-color: #d4edda; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
+    .checkmark-animated { font-size: 2.5rem; color: #198754; transform: scale(0); animation: checkmark-scale 0.6s ease-out 0.4s forwards; opacity: 0; }
+    @keyframes checkmark-scale { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.4); opacity:1; } 100%{ transform: scale(1); opacity:1; } }
+    .receipt-card .card-body { padding: 2rem; }
+    .receipt-card .card-body .lead { font-size: 1.1rem; font-weight: 500; }
+    .receipt-card .card-body p { margin-bottom: 0.75rem; }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(20px);} to{ opacity:1; transform: translateY(0);} }
+  </style><meta name="keywords" content="">
   <link href="./assets/img/favicon.png" rel="icon">
   <link href="./assets/img/apple-touch-icon.png" rel="apple-touch-icon">
   <link rel="icon" href="data/images/logo.jpb.jpg">
@@ -27,23 +39,52 @@
   <link href="./assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
   <link href="./assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
   <link href="./assets/css/main.css" rel="stylesheet">
-  <!-- Inline CSS for receipt animation -->
   <style>
-    .receipt-container { padding: 20px; margin-top: 30px; animation: fadeIn 1s ease-out; }
-    .receipt-card { max-width: 600px; margin: 0 auto; border: 1px solid #198754; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; }
-    .receipt-card .card-header { background-color: #198754; color: #fff; text-align: center; padding: 1.5rem; position: relative; }
-    .icon-container { width: 80px; height: 80px; border-radius: 50%; background-color: #d4edda; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
-    .checkmark-animated { font-size: 2.5rem; color: #198754; transform: scale(0); animation: checkmark-scale 0.6s ease-out 0.4s forwards; opacity: 0; }
-    @keyframes checkmark-scale { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.4); opacity:1; } 100%{ transform: scale(1); opacity:1; } }
-    .receipt-card .card-body { padding: 2rem; }
-    .receipt-card .card-body .lead { font-size: 1.1rem; font-weight: 500; }
-    .receipt-card .card-body p { margin-bottom: 0.75rem; }
-    @keyframes fadeIn { from { opacity:0; transform: translateY(20px);} to{ opacity:1; transform: translateY(0);} }
+    .alert {
+      text-align: center;
+      position: absolute;
+      z-index: 99999999;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 1rem;
+      width: 100%;
+      border: 1px solid transparent;
+      border-radius: 0.25rem;
+    }
+    .alert-success {
+      color: #0f5132;
+      background-color: #d1e7dd;
+      border-color: #badbcc;
+    }
+    .alert-danger {
+      color: #842029;
+      background-color: #f8d7da;
+      border-color: #f5c2c7;
+    }
+    .alert-dismissible {
+      padding-right: 3rem;
+    }
+    .alert-dismissible .btn-close {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 0.75rem 1.25rem;
+      color: inherit;
+    }
+    .fade {
+      transition: opacity 0.15s linear;
+    }
+    .show {
+      opacity: 1;
+    }
   </style>
 </head>
-<body>
-  <!-- Navbar -->
- <header id="header" class="header sticky-top">
+{{#if alertMessage}}
+<div class="alert alert-{{alertType}} alert-dismissible fade show" role="alert">
+  {{alertMessage}}
+</div>
+{{/if}}
+<body class="index-page">
+  <header id="header" class="header sticky-top">
     <div class="topbar d-flex align-items-center light-background">
       <div class="container d-flex justify-content-center justify-content-md-between">
         <div class="contact-info d-flex align-items-center">
@@ -64,7 +105,7 @@
         <a href="index"class="logo d-flex align-items-center">
           <h1 class="sitename">E - Park Gateway</h1>
         </a>
-        <nav id="navmenu" class="navmenu fw-bold">
+        <nav id="navmenu" class="navmenu">
           <ul>
             <li><a href="index" >Home<br></a></li>
             <li><a href="about">About</a></li>
@@ -101,7 +142,7 @@
   </header>
 
   <!-- Hero Section -->
-  <section class="py-5 text-center bg-light">
+  <section class="py-5 text-center bg-light" id="plans">
     <div class="container">
       <h1 class="display-5 fw-bold">Choose Your Parking Plan</h1>
       <p class="lead">Flexible pricing options for all your parking needs</p>
@@ -123,7 +164,7 @@
               <h5 class="card-title">E-Park A - Daily</h5>
               <h6 class="card-price text-success">₹30 / day</h6>
               <p class="card-text">Secure parking with easy access.</p>
-              <button class="btn btn-outline-success action-btn">Book Now</button>
+              <button type="submit" id="buyProduct" class="btn btn-outline-success action-btn" >Book Now</button>
             </div>
           </div>
         </div>
@@ -216,7 +257,8 @@
   </section>
 
   <!-- Booking Receipt (hidden by default) -->
-  <div id="receiptModal" class="receipt-container d-none" data-aos="fade-up" data-aos-delay="300" style="opacity:1; margin-bottom:20%;">
+  <div id="receiptModal" class="receipt-container d-none" data-aos="fade-up" data-aos-delay="300" style="opacity:1;    margin-top: 0;
+    margin-bottom: 20%;">
     <div class="card receipt-card">
       <div class="card-header">
         <div class="icon-container">
@@ -228,13 +270,13 @@
         <p class="lead text-center">Your payment was successful. Here are your booking details:</p>
         <div class="row mb-3">
           <div class="col-sm-6">
-            <p><strong>Booking ID:</strong> #123456789</p>
+            <p><strong>Booking ID:</strong> #{{ product_ID}}</p>
             <p><strong>Park:</strong> E-Park North</p>
-            <p><strong>Date:</strong> April 21, 2025</p>
+            <p><strong>Date:</strong> {{ productDate}}</p>
           </div>
           <div class="col-sm-6">
             <p><strong>Payment Method:</strong> Credit Card</p>
-            <p><strong>Amount Paid:</strong> $50.00</p>
+            <p><strong>Amount Paid:</strong> {{  productPrice}}</p>
             <p><strong>Status:</strong> <span class="text-success">Successful</span></p>
           </div>
         </div>
@@ -244,7 +286,9 @@
     </div>
   </div>
 
-   <footer id="footer" class="footer dark-background">
+  <!-- Footer -->
+    <footer id="footer" class="footer dark-background">
+
     <div class="footer-top">
       <div class="container">
         <div class="row gy-4">
@@ -259,6 +303,7 @@
               <p><strong>Email:</strong> <span>eparkgateway@gmail.com</span></p>
             </div>
           </div>
+
           <div class="col-lg-2 col-md-3 footer-links">
             <h4>Useful Links</h4>
             <ul>
@@ -269,6 +314,7 @@
               <li><a href="privacy">Privacy policy</a></li>
             </ul>
           </div>
+
           <div class="col-lg-2 col-md-3 footer-links">
             <h4>Our Services</h4>
             <ul>
@@ -279,6 +325,7 @@
               <li><a href="#">Want to have website like us - Developers Contact</a></li>
             </ul>
           </div>
+
           <div class="col-lg-2 col-md-3 footer-links">
             <h4>Hic solutasetp</h4>
             <ul>
@@ -289,6 +336,7 @@
               <li><a href="#">Sit quas consectetur</a></li>
             </ul>
           </div>
+
           <div class="col-lg-2 col-md-3 footer-links">
             <h4>Nobis illum</h4>
             <ul>
@@ -299,9 +347,11 @@
               <li><a href="#">Flexo</a></li>
             </ul>
           </div>
+
         </div>
       </div>
     </div>
+
     <div class="copyright text-center">
       <div
         class="container d-flex flex-column flex-lg-row justify-content-center justify-content-lg-between align-items-center">
@@ -315,25 +365,34 @@
             Featured By <a href="#">United Students</a>
           </div>
         </div>
+
         <div class="social-links order-first order-lg-last mb-3 mb-lg-0">
           <a href=""><i class="bi bi-twitter-x"></i></a>
           <a href=""><i class="bi bi-facebook"></i></a>
           <a href=""><i class="bi bi-instagram"></i></a>
           <a href=""><i class="bi bi-linkedin"></i></a>
         </div>
+
       </div>
     </div>
+
   </footer>
 
+  <!-- Vendor JS Files -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/vendor/aos/aos.js"></script>
   <script src="assets/js/main.js"></script>
+
+  <!-- Handle button clicks -->
   <script>
     document.querySelectorAll('.action-btn').forEach(btn => {
       btn.addEventListener('click', e => {
         e.preventDefault();
+        // Hide pricing & membership sections
         document.getElementById('pricingSection').classList.add('d-none');
         document.getElementById('membershipSection').classList.add('d-none');
+        document.getElementById('plans').classList.add('d-none');
+        // Show receipt
         const modal = document.getElementById('receiptModal');
         modal.classList.remove('d-none');
         AOS.refresh();
@@ -342,5 +401,32 @@
     });
     
   </script>
+  <button id="buyProduct">Buy Now</button>
+
+<button id="buyProduct">Buy Product</button>
+
+<script>
+  document.getElementById("buyProduct").addEventListener("click", () => {
+    fetch("/product", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      }
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.productId) {
+        alert("Ticket Booked successfully! with ID: " + data.productId);
+      } else {
+        alert("Error: " + data.message);
+      }
+    })
+    .catch((err) => {
+      console.error("Fetch error:", err);
+    });
+  });
+</script>
+
+
 </body>
 </html>

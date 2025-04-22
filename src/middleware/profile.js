@@ -7,7 +7,7 @@ app.use(cookieParser())
 const profileData = async (req,res)=>
 {
   try {
-    const tkn = req.cookies.authToken;
+    const tkn = req.cookies.token;
     if (!tkn) {
       return res.status(401).redirect("/loginsignup");
     }
