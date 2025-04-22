@@ -18,7 +18,7 @@ function sendOTPEmail1 (email,otp)
         service: "gmail",
         auth: {
           user: "eparkgateway@gmail.com",
-          pass: "oklpjjexicgwgxvb", // Use application-specific password
+          pass: "ksirivsjacsesqtb", // Use application-specific password
         },
       });
   
