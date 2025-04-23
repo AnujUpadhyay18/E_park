@@ -83,7 +83,7 @@ app.get("/Resend-OTP", sessionMessageHandler, (req, res) => {
   res.render("otp");
 });
 app.get("/admin",(req, res) => {
-  res.render("adminPannel");
+  res.render("adminPanel");
 });
 app.get("/confirm", sessionMessageHandler, (req, res) => {
   const email = req.session.email;
