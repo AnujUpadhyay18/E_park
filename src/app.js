@@ -1,13 +1,19 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
-const app = express(); 
+const app = express();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const sendOTPEmail1 = require("./middleware/sendOTPEmail");
 const sendCNFEmail1 = require("./middleware/sendCNFEmail");
+const generateRandomProductId = () => {
+  return 'E-PARK-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+};
+const isAuth = require("./middleware/isAuthentic");
+
 const jwt = require("jsonwebtoken");
 app.use(cookieParser());
+const profileUpdateEmail = require("./middleware/profileUpdateEmail");
 const profileData = require("./middleware/profile");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -16,9 +22,15 @@ app.use(
     secret: "kjrvgkrewgfuwgfvjkjewqwgfueqgf",
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 300000 },
+    cookie: {
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    },
   })
 );
+const OTP = { otp: null };
+const email = { email: null };
 const moment = require("moment-timezone");
 const E_M = { em: null };
 const G_A = { ga: null, rn: null };
@@ -34,62 +46,47 @@ app.use(express.static("views"));
 app.set("view engine", "hbs");
 function isAuthenticated(req, res, next) {
   if (!req.session.userId) {
-    req.session.redirectTo = req.originalUrl; // Store the route user tried to access
-    return res.redirect("/loginsignup"); // Redirect to login/signup page
+    req.session.redirectTo = req.originalUrl;
+    return res.redirect("/loginsignup");
   }
-  next(); 
+  next();
 }
+function sessionMessageHandler(req, res, next) {
+  res.locals.alertMessage = req.session.alertMessage || null;
+  res.locals.alertType = req.session.alertType || null;
+  req.session.alertMessage = null;
+  req.session.alertType = null;
+  next();
+}
+
+
 app.get("/", (req, res) => {
   G_A.ga = null;
   G_A.rn = null;
   res.render("home");
 });
-app.get("/loginsignup", (req, res) => {
-  const alertMessage = req.session.alertMessage;
-  const alertType = req.session.alertType;
-  req.session.alertMessage = null;
-  req.session.alertType = null;
-  res.render("loginsignup", { alertMessage, alertType });
+app.get("/loginsignup", sessionMessageHandler, (req, res) => {
+  res.render("loginsignup");
 });
-app.get("/index",isAuthenticated, (req, res) => {
-  
-    const alertMessage = req.session.alertMessage;
-    const alertType = req.session.alertType;
-    req.session.alertMessage = null;
-    req.session.alertType = null;
-    res.render("index", { alertMessage, alertType });
+app.get("/index", isAuthenticated, sessionMessageHandler, (req, res) => {
+  res.render("index");
 });
-app.get("/forgot", (req, res) => {
-  const alertMessage = req.session.alertMessage;
-  const alertType = req.session.alertType;
-  req.session.alertMessage = null;
-  req.session.alertType = null;
-  res.render("forgot", { alertMessage, alertType });
+app.get("/forgot", sessionMessageHandler, (req, res) => {
+  res.render("forgot");
 });
-app.get("/otp", (req, res) => {
-  const alertMessage = req.session.alertMessage;
-  const alertType = req.session.alertType;
-  req.session.alertMessage = null;
-  req.session.alertType = null;
-  res.render("otp", { alertMessage, alertType });
+app.get("/otp", sessionMessageHandler, (req, res) => {
+  res.render("otp");
 });
-app.get("/Resend-OTP", (req, res) => {
-  const alertMessage = req.session.alertMessage;
-  const alertType = req.session.alertType;
-  req.session.alertMessage = null;
-  req.session.alertType = null;
-  res.render("otp", { alertMessage, alertType });
+app.get("/Resend-OTP", sessionMessageHandler, (req, res) => {
+  res.render("otp");
 });
-app.get("/confirm", (req, res) => {
+
+app.get("/confirm", sessionMessageHandler, (req, res) => {
   const email = req.session.email;
-  const alertMessage = req.session.alertMessage;
-  const alertType = req.session.alertType;
-  req.session.alertMessage = null;
-  req.session.alertType = null;
-  res.render("confirm", { alertMessage, alertType, email });
+  res.render("confirm", { email });
 });
-app.get("/about",isAuthenticated, (req, res) => {
-    res.render("about");
+app.get("/about", isAuthenticated, (req, res) => {
+  res.render("about");
 });
 app.get("/privacy", isAuthenticated, (req, res) => {
   res.render("privacy");
@@ -103,9 +100,9 @@ app.get("/services", isAuthenticated, (req, res) => {
   res.render("services");
 });
 app.get("/confirm", (req, res) => {
-  const email = req.session.email; 
+  const email = req.session.email;
   if (!email) {
-    return res.redirect("/forgot"); // If email is missing, redirect to forgot page
+    return res.redirect("/forgot");
   }
   res.render("confirm", {
     alertMessage: req.session.alertMessage,
@@ -117,8 +114,23 @@ app.get("/testimonials", isAuthenticated, (req, res) => {
   res.render("testimonials");
 });
 
+const productData = {
+  product_ID: generateRandomProductId(),
+  productName: "Ticket for park",
+  productPrice: "30.00",
+  productDate: moment().tz("Asia/Kolkata").format("DD MMM YYYY, h:mm A"),
+}
 app.get("/pricing", isAuthenticated, (req, res) => {
-  res.render("pricing");
+  res.render("pricing", {
+    product_ID : null,
+    productName: null,
+    productPrice: null,
+    productDate: null,
+    product_ID: productData.product_ID,
+    productName: productData.productName,
+    productPrice: productData.productPrice,
+    productDate: productData.productDate,
+  });
 });
 
 app.get("/contact", isAuthenticated, (req, res) => {
@@ -127,6 +139,9 @@ app.get("/contact", isAuthenticated, (req, res) => {
 
 app.get("/portfolio", isAuthenticated, (req, res) => {
   res.render("portfolio");
+});
+app.get("/support", isAuthenticated, (req, res) => {
+  res.render("support");
 });
 
 app.get("/portfolio-details", isAuthenticated, (req, res) => {
@@ -148,13 +163,13 @@ app.get("/hathipark", isAuthenticated, (req, res) => {
 app.get("/servise-details", isAuthenticated, (req, res) => {
   res.render("servise-details");
 });
-app.get("/profiledetails", profileData, (req, res) => {
+app.get("/profiledetails", profileData, isAuthenticated, (req, res) => {
   if (!req.session.userId) {
     req.session.redirectTo = req.originalUrl;
     return res.redirect("/loginsignup");
   }
-  
-  res.render("profiledetails", { 
+
+  res.render("profiledetails", {
     userN: req.session.userN,
     userE: req.session.userE,
     alertMessage: req.session.alertMessage,
@@ -234,6 +249,7 @@ app.post("/login", async (req, res) => {
   try {
     const log_n = req.body.log_name.toLowerCase();
     const log_p = req.body.log_password;
+    email.email = log_n;
     const user = await register.findOne({ email: log_n });
     if (!user) {
       req.session.alertMessage = "User not exist";
@@ -249,12 +265,13 @@ app.post("/login", async (req, res) => {
     }
     req.session.userId = user._id;
     const token = await user.generateAuthToken();
-    res.cookie("authToken", token, {
+    res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
     G_A.ga = 999;
+
     const indiaTime = moment().tz("Asia/Kolkata").format();
     user.lastLogin = indiaTime;
     const z1 = user.email;
@@ -262,9 +279,11 @@ app.post("/login", async (req, res) => {
     await user.save();
     req.session.alertMessage = "Login successful!";
     req.session.alertType = "success";
-    const redirectRoute = req.session.redirectTo || "/index"; // Use stored route or default
-req.session.redirectTo = null; // Reset after use
-res.status(200).redirect(redirectRoute);
+    const redirectRoute = req.session.redirectTo || "/index";
+
+
+    req.session.redirectTo = null;
+    res.status(200).redirect(redirectRoute);
   } catch (error) {
     console.error("Login error: ", error);
     req.session.alertMessage = "An error occurred. Please try again.";
@@ -390,27 +409,26 @@ app.post("/update-profile", async (req, res) => {
     console.log("Received email:", ueml);
 
     const user1 = await register.findOne({ email: ueml });
-
+    if (!currentPassword) {
+      return res.json({ message: "Plese Enter Password!", redirect: "/profiledetails" });
+    }
     if (!user1) {
       req.session.alertMessage = "User not found or not authenticated.";
       req.session.alertType = "danger";
-      return res.redirect("/index"); 
+      return res.redirect("/index");
     }
 
-    const userId = user1._id;
-    console.log("User ID:", userId);
-    const user = await register.findById(userId);
-
+    const user = await register.findById(user1._id);
     if (!user) {
       req.session.alertMessage = "User not found.";
       req.session.alertType = "danger";
-      return res.status(404).redirect("/loginsignup"); // Ensure session is not lost
+      return res.status(404).redirect("/loginsignup");
     }
 
     if (newEmail && newEmail !== user.email) {
       const existingUser = await register.findOne({ email: newEmail.toLowerCase() });
       if (existingUser) {
-        req.session.alertMessage = "Email already in use. Please choose another.";
+        req.session.alertMessage = "Email already in use.";
         req.session.alertType = "danger";
         return res.status(400).redirect("/index");
       }
@@ -423,29 +441,130 @@ app.post("/update-profile", async (req, res) => {
       return res.status(400).redirect("/index");
     }
 
-    // ✅ Update user details
     if (newUsername) user.User_name = newUsername;
     if (newEmail) user.email = newEmail.toLowerCase();
     await user.save();
 
-    // ✅ Update session variables
     req.session.userN = user.User_name;
     req.session.userE = user.email;
     req.session.alertMessage = "Profile updated successfully!";
     req.session.alertType = "success";
 
-    return res.redirect("/index"); // 🚀 Ensure redirect to profile, not login
+    return res.redirect("/index");
   } catch (error) {
     console.error("Profile update error:", error);
-    req.session.alertMessage = "An error occurred. Please try again.";
+    req.session.alertMessage = "An error occurred.";
     req.session.alertType = "danger";
-    return res.status(500).redirect("/index"); // Redirect back with error message
+    return res.status(500).redirect("/index");
   }
 });
+app.post("/Edit-profile-details", async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).send("Email is required.");
+  }
+  console.log("Received email:", email);
+  try {
+    alertMessage = `OTP send to your email: ${email}`;
+    alertType = "success"
+    OTP.otp = Math.floor(100000 + Math.random() * 900000);
+    await profileUpdateEmail(email, OTP.otp);
+    res.send(`Server received email: ${email}`);
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).send("Internal server error.");
+  }
+});
+
+app.post("/conf-OTP", async (req, res) => {
+  try {
+    const { otp, email, cemail, name } = req.body;
+
+    if (!otp) {
+      return res.status(400).json({ message: "OTP is required." });
+    }
+    console.log(OTP.otp)
+    console.log(otp, email, cemail, name)
+
+    const user = await register.findOne({ email: email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+    if (OTP.otp.toString().trim() !== otp.toString().trim()) {
+      return res.status(401).json({ message: "Invalid OTP. Profile Not Updated" });
+    }
+    const existingUser = await register.findOne({ email: cemail.toLowerCase() });
+    if (existingUser) {
+      return res.json({ message: "User Already Exist!", redirect: "/index" });
+    }
+    if (name) user.User_name = name;
+    if (cemail) user.email = cemail.toLowerCase();
+    await user.save();
+    return res.json({ message: "Profile Updated successfully!", redirect: "/profiledetails" });
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    return res.status(500).json({ message: "An error occurred. Please try again." });
+  }
+});
+
+app.post("/product", isAuthenticated, async (req, res) => {
+  const user = await register.findOne({ email: email.email });
+  if (!user) {
+    return res.status(404).json({ message: "User not found." });
+  }
+  try {
+    const randomProductId = generateRandomProductId();
+    const productdadada =
+    {
+      productDate: moment().tz("Asia/Kolkata").format("DD MMM YYYY, h:mm A"),
+    }
+    const date = new Date(productdadada.productDate);
+    const dateOnly = date.toLocaleDateString();
+    const timeOnly = date.toLocaleTimeString();
+    const fulltime = `${dateOnly}, ${timeOnly}`;
+    console.log("Date: ", dateOnly);
+    const newProduct = {
+      productID: randomProductId,
+      productName: "Ticket for park",
+      productPrice: "30.00",
+      productImage: null,
+      productDate: fulltime,
+    };
+    user.products.push(newProduct);
+    await user.save();
+    res.status(200).json({ message: "Ticket Booked successfully!", productId: randomProductId });
+  } catch (error) {
+    console.error("Error creating product:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+})
+
+app.get("/order_details", isAuthenticated, isAuth, async (req, res) => {
+  try {
+    const userEmail = req.user.email;
+    console.log("Authenticated user email:", userEmail);
+
+    const user = await register.findOne({ email: userEmail }).lean();
+    console.log("Fetched user:", user);
+
+    if (!user || !user.products || user.products.length === 0) {
+      console.log("No products found");
+      return res.render("orderdetails", { products: [] });
+    }
+
+    const recentProducts = user.products;
+    console.log("Recent products:", recentProducts);
+
+    res.render("orderdetails", { products: recentProducts });
+  } catch (err) {
+    console.error("Error fetching tickets:", err);
+    res.status(500).send("Server Error");
+  }
+});
+
 app.use((req, res) => {
   res.status(404).render("NotFount");
 });
 app.listen(PORT, (req, res) => {
   console.log(`server is running in port no ${PORT}`);
 });
-  

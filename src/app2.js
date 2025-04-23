@@ -10,13 +10,15 @@ const generateRandomProductId = () => {
   return 'E-PARK-' + Math.random().toString(36).substr(2, 9).toUpperCase();
 };
 const isAuth = require("./middleware/isAuthentic");
-
+const PDFDocument = require('pdfkit');
+const bodyParser = require('body-parser');
+const puppeteer = require('puppeteer');
+const fs = require('fs');
 const jwt = require("jsonwebtoken");
 app.use(cookieParser());
 const profileUpdateEmail = require("./middleware/profileUpdateEmail");
 const profileData = require("./middleware/profile");
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
 app.use(
   session({
     secret: "kjrvgkrewgfuwgfvjkjewqwgfueqgf",
@@ -115,14 +117,16 @@ app.get("/testimonials", isAuthenticated, (req, res) => {
 });
 
 const productData = {
-  product_ID: generateRandomProductId(),
+  product_ID: null,
   productName: "Ticket for park",
   productPrice: "30.00",
   productDate: moment().tz("Asia/Kolkata").format("DD MMM YYYY, h:mm A"),
 }
 app.get("/pricing", isAuthenticated, (req, res) => {
+  const randomProductId = generateRandomProductId();
+  productData.product_ID = randomProductId;
   res.render("pricing", {
-    product_ID : null,
+    product_ID: null,
     productName: null,
     productPrice: null,
     productDate: null,
@@ -513,7 +517,7 @@ app.post("/product", isAuthenticated, async (req, res) => {
     return res.status(404).json({ message: "User not found." });
   }
   try {
-    const randomProductId = generateRandomProductId();
+    const randomProductId = productData.product_ID
     const productdadada =
     {
       productDate: moment().tz("Asia/Kolkata").format("DD MMM YYYY, h:mm A"),
@@ -559,6 +563,115 @@ app.get("/order_details", isAuthenticated, isAuth, async (req, res) => {
   } catch (err) {
     console.error("Error fetching tickets:", err);
     res.status(500).send("Server Error");
+  }
+});
+
+app.post('/download_pdf', async (req, res) => {
+  const { productID, productDate, productPrice } = req.body;
+
+  const htmlContent = `
+  <html>
+    <head>
+      <style>
+        body {
+          font-family: 'Arial', sans-serif;
+          background-color: #f9f9f9;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          margin: 0;
+        }
+        .card {
+          background: white;
+          border: 2px solid #c6e1cc;
+          border-radius: 12px;
+          padding: 30px 40px;
+          box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+          text-align: center;
+          width: 400px;
+        }
+        .checkmark {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          background-color: #d4edda;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 20px;
+        }
+        .checkmark::before {
+          content: '✔';
+          font-size: 32px;
+          color: #155724;
+        }
+        h1 {
+          color: #155724;
+          margin-bottom: 10px;
+        }
+        .line {
+          height: 1px;
+          background-color: #c6e1cc;
+          margin: 20px 0;
+        }
+        .row {
+          display: flex;
+          justify-content: space-between;
+          margin: 6px 0;
+          font-size: 16px;
+        }
+        .bold {
+          font-weight: bold;
+        }
+        .button {
+          margin-top: 20px;
+          background-color: #2f7655;
+          color: white;
+          padding: 12px 24px;
+          border: none;
+          border-radius: 10px;
+          font-size: 16px;
+          font-weight: bold;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="checkmark"></div>
+        <h1>Payment Successful</h1>
+        <div class="line"></div>
+        <div class="row"><span class="bold">Receipt Number:</span> <span>#${productID}</span></div>
+        <div class="row"><span class="bold">Booking Date:</span> <span>${productDate}</span></div>
+        <div class="row"><span class="bold">Amount Paid:</span> <span>₹${productPrice}</span></div>
+        <div class="row"><span class="bold">Payment Method:</span> <span>Credit Card</span></div>
+        <button class="button">View Details</button>
+      </div>
+    </body>
+  </html>
+`;
+
+  try {
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    const page = await browser.newPage();
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
+    const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
+    await browser.close();
+
+    res.writeHead(200, {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="receipt-${productID}.pdf"`,
+      'Content-Length': pdfBuffer.length
+    });
+
+    res.end(pdfBuffer);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Failed to generate PDF');
   }
 });
 
