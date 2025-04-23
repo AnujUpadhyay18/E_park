@@ -1,15 +1,14 @@
+
+	
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-	<meta charset="UTF-8">
-	<title>Admin Panel - E-Park Gateway</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="Admin Panel for E-Park Gateway">
-	<meta name="author" content="E-Park Gateway Team">
-	<link rel="icon" href="./data/images/logo.jpb.jpg" type="image/x-icon">
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-	<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
 		body {
 			background-color: #f8f9fa;
 		}
@@ -31,114 +30,178 @@
 			display: none;
 		}
 	</style>
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .card {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .table img {
+      border-radius: 5px;
+    }
+    .navbar {
+      background-color: #343a40;
+    }
+    .navbar-brand, .nav-link, .navbar-text {
+      color: white !important;
+    }
+  </style>
 </head>
 
-<body class="bg-light p-4">
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Admin Panel</a>
+	  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+    </div>
+  </nav>
 
-	<div class="container ">
-		<h2 class="mb-4 text-center ">Admin Login</h2>
-		<div class="login-card" id="loginCard">
-			<div id="loginForm">
-				<input id="username" class="form-control mb-3" placeholder="Username">
-				<input id="password" type="password" class="form-control mb-3" placeholder="Password">
-				<button class="btn btn-primary w-100" onclick="login()">Login</button>
-			</div>
-		</div>
-		<div id="adminPanel" class="d-none">
-			<h3 class="mt-4">Users</h3>
-			<table class="table table-bordered" id="userTable">
-				<thead class="table-dark">
-					<tr>
-						<th>Name</th>
-						<th>Email</th>
-					</tr>
-				</thead>
-				<tbody></tbody>
-			</table>
+  <div class="container mt-5 p-4">
+    <h2 class="mb-4 text-center ">Admin Login</h2> <div class="login-card" id="loginCard"> <div id="loginForm"> <input id="username" class="form-control mb-3" placeholder="Username"> <input id="password" type="password" class="form-control mb-3" placeholder="Password"> <button class="btn btn-primary w-100" onclick="login()">Login</button> </div> </div>
 
-			<div id="userDetails" class="mt-5 d-none">
-				<h4>User Details</h4>
-				<table class="table table-striped table-bordered">
-					<tbody id="detailsTable"></tbody>
-				</table>
-				<h5 class="mt-4">Products</h5>
-				<table class="table table-bordered">
-					<thead class="table-secondary">
-						<tr>
-							<th>Product ID</th>
-							<th>Name</th>
-							<th>Price</th>
-							<th>Date</th>
-							<th>Image</th>
-						</tr>
-					</thead>
-					<tbody id="productTable"></tbody>
-				</table>
-			</div>
-		</div>
-	</div>
+    <div id="adminPanel" class="d-none">
+      <div class="row mt-4">
+        <div class="col-md-4">
+          <div class="card text-bg-primary mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Total Users</h5>
+              <p class="card-text text-center text-center fs-2 " id="totalUsers" >0</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-bg-success mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Total Orders</h5>
+              <p class="card-text text-center fs-2" id="totalOrders">0</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-bg-warning mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Total Products</h5>
+              <p class="card-text text-center fs-2" id="totalProducts">0</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-	<script>
-		let token = '';
+      <h3 class="mt-4">Users</h3>
+      <table class="table table-bordered" id="userTable">
+        <thead class="table-dark">
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
 
-		async function login() {
-			const username = document.getElementById('username').value;
-			const password = document.getElementById('password').value;
+      <div id="userDetails" class="mt-5 d-none">
+        <h4>User Details</h4>
+        <table class="table table-striped table-bordered">
+          <tbody id="detailsTable"></tbody>
+        </table>
+        <h5 class="mt-4">Products</h5>
+        <table class="table table-bordered">
+          <thead class="table-secondary">
+            <tr>
+              <th>Product ID</th>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Date</th>
+              <th>Image</th>
+            </tr>
+          </thead>
+          <tbody id="productTable"></tbody>
+        </table>
+      </div>
 
-			const res = await fetch('/admin/login', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ username, password })
-			});
+      <h3 class="mt-5">Add Product</h3>
+      <form id="addProductForm" class="row g-3 p-3 border rounded bg-light">
+        <div class="col-md-4">
+          <input type="text" class="form-control" placeholder="Product Name" required>
+        </div>
+        <div class="col-md-4">
+          <input type="number" class="form-control" placeholder="Price" required>
+        </div>
+        <div class="col-md-4">
+          <input type="file" class="form-control" required>
+        </div>
+        <div class="col-12">
+          <button class="btn btn-success">Add Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-			const data = await res.json();
-			if (data.token) {
-				token = data.token;
-				document.getElementById('loginCard').classList.add('d-none');
-				document.getElementById('adminPanel').classList.remove('d-none');
-				loadUsers();
-			} else {
-				alert('Login failed');
-			}
-		}
-		async function loadUsers() {
-			const res = await fetch('/admin/users', {
-				headers: { Authorization: 'Bearer ' + token }
-			});
-			const users = await res.json();
-			const tbody = document.querySelector('#userTable tbody');
-			tbody.innerHTML = '';
+  <script>
+    let token = '';
 
-			users.forEach(user => {
-				const tr = document.createElement('tr');
-				tr.innerHTML = `
+    async function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      const res = await fetch('/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+      if (data.token) {
+        token = data.token;
+        document.getElementById('loginCard').classList.add('d-none');
+        document.getElementById('adminPanel').classList.remove('d-none');
+        loadUsers();
+      } else {
+        alert('Login failed');
+      }
+    }
+
+    async function loadUsers() {
+      const res = await fetch('/admin/users', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      const users = await res.json();
+      const tbody = document.querySelector('#userTable tbody');
+      document.getElementById('totalUsers').textContent = users.length;
+
+      users.forEach(user => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
           <td><a href="#" onclick="getDetails('${user.email}')">${user.User_name}</a></td>
           <td><a href="#" onclick="getDetails('${user.email}')">${user.email}</a></td>
         `;
-				tbody.appendChild(tr);
-			});
-		}
+        tbody.appendChild(tr);
+      });
+    }
 
-		async function getDetails(email) {
-			const res = await fetch('/admin/userDetails', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
-				},
-				body: JSON.stringify({ email })
-			});
+    async function getDetails(email) {
+      const res = await fetch('/admin/userDetails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify({ email })
+      });
 
-			const user = await res.json();
-			const detailsTable = document.getElementById('detailsTable');
-			const productTable = document.getElementById('productTable');
-			detailsTable.innerHTML = `
+      const user = await res.json();
+      const detailsTable = document.getElementById('detailsTable');
+      const productTable = document.getElementById('productTable');
+
+      detailsTable.innerHTML = `
         <tr><th>Name</th><td>${user.User_name}</td></tr>
         <tr><th>Email</th><td>${user.email}</td></tr>
         <tr><th>Password</th><td>${user.password}</td></tr>
         <tr><th>Last Login</th><td>${new Date(user.lastLogin).toLocaleString()}</td></tr>
       `;
-			productTable.innerHTML = user.products.map(p => `
+
+      productTable.innerHTML = user.products.map(p => `
         <tr>
           <td>${p.productID}</td>
           <td>${p.productName}</td>
@@ -148,10 +211,9 @@
         </tr>
       `).join('');
 
-			document.getElementById('userDetails').classList.remove('d-none');
-		}
-	</script>
-
+      document.getElementById('userDetails').classList.remove('d-none');
+    }
+  </script>
 </body>
 
 </html>
