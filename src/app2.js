@@ -566,7 +566,7 @@ app.get("/order_details", isAuthenticated, isAuth, async (req, res) => {
   }
 });
 
-app.post('/download_pdf', async (req, res) => {
+app.post('/download_pdf',isAuthenticated, async (req, res) => {
   const { productID, productDate, productPrice } = req.body;
 
   const htmlContent = `

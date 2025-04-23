@@ -75,5 +75,5 @@ UserSchema.methods.generateAuthToken = async function () {
       }
 }
 
-const Register = new mongoose.model('userdata1',UserSchema);
+const Register = new mongoose.model('E_Park_Data',UserSchema);
 module.exports = Register;
