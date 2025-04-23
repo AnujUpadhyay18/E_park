@@ -683,8 +683,6 @@ const ADMIN_CREDENTIALS = {
   username: 'admin',
   password: 'admin123'
 };
-
-// Admin Login
 app.post('/admin/login', (req, res) => {
   const { username, password } = req.body;
   if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
@@ -694,7 +692,6 @@ app.post('/admin/login', (req, res) => {
   res.status(401).send({ error: 'Invalid credentials' });
 });
 
-// Admin Auth Middleware
 const authenticateAdmin = (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
@@ -705,14 +702,10 @@ const authenticateAdmin = (req, res, next) => {
     res.status(403).send({ error: 'Unauthorized' });
   }
 };
-
-// Get Users (Only Name and Email)
 app.get('/admin/users', authenticateAdmin, async (req, res) => {
   const users = await User.find({}, 'User_name email');
   res.send(users);
 });
-
-// Get Full User Details by Email
 app.post('/admin/userDetails', authenticateAdmin, async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
