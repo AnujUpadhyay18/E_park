@@ -1,8 +1,10 @@
 const express = require("express");
+const hbs = require('hbs');
 const cookieParser = require("cookie-parser");
 const app = express();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
+const cors =require('cors')
 const session = require("express-session");
 const sendOTPEmail1 = require("./middleware/sendOTPEmail");
 const sendCNFEmail1 = require("./middleware/sendCNFEmail");
@@ -18,7 +20,7 @@ const jwt = require("jsonwebtoken");
 app.use(cookieParser());
 const profileUpdateEmail = require("./middleware/profileUpdateEmail");
 const profileData = require("./middleware/profile");
-
+app.use(cors())
 app.use(
   session({
     secret: "kjrvgkrewgfuwgfvjkjewqwgfueqgf",
@@ -36,7 +38,7 @@ const email = { email: null };
 const moment = require("moment-timezone");
 const E_M = { em: null };
 const G_A = { ga: null, rn: null };
-const { engine } = require("express-handlebars");
+
 const { json } = require("express");
 const { PORT } = require("./config/env");
 require("./database/connection");
@@ -45,7 +47,8 @@ const register = require("./models/registers");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("views"));
-app.set("view engine", "hbs");
+app.set('view engine', 'hbs');
+app.set('views', path.join(__dirname, 'views'));
 function isAuthenticated(req, res, next) {
   if (!req.session.userId) {
     req.session.redirectTo = req.originalUrl;
@@ -82,7 +85,7 @@ app.get("/otp", sessionMessageHandler, (req, res) => {
 app.get("/Resend-OTP", sessionMessageHandler, (req, res) => {
   res.render("otp");
 });
-app.get("/admin",(req, res) => {
+app.get("/admin",(req, res) => { 
   res.render("adminPanel");
 });
 app.get("/confirm", sessionMessageHandler, (req, res) => {
