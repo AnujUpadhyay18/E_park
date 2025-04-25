@@ -534,7 +534,7 @@ app.post("/product", isAuthenticated, async (req, res) => {
       productName: "Ticket for park",
       productPrice: "30.00",
       productImage: null,
-      productDate: fulltime,
+      productDate: date , 
     };
     user.products.push(newProduct);
     await user.save();

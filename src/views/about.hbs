@@ -20,7 +20,36 @@
   <link href="./assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
   <link href="./assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
   <link href="./data/css/main.css" rel="stylesheet">
+   <style>
+  .whatsapp-float {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+    width: 60px;
+    height: 60px;
+    background-color: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+  }
+
+  .whatsapp-float img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .whatsapp-float:hover {
+    transform: scale(1.1);
+  }
+</style>
 </head>
+<a href="https://wa.link/bd9o1s" class="whatsapp-float" target="_blank" title="Chat with us on WhatsApp">
+  <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp" />
+</a>
 <body class="about-page">
   <header id="header" class="header sticky-top">
     <div class="topbar d-flex align-items-center light-background">
