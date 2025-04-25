@@ -21,15 +21,18 @@ app.use(cookieParser());
 const profileUpdateEmail = require("./middleware/profileUpdateEmail");
 const profileData = require("./middleware/profile");
 app.use(cors())
+app.set('trust proxy', 1);
+
 app.use(
   session({
-    secret: "kjrvgkrewgfuwgfvjkjewqwgfueqgf",
-    resave: false,
-    saveUninitialized: true,
+    secret: process.env.SESSION_SECRET, // REQUIRED: set in .env file securely
+    resave: false, // don't save session if unmodified
+    saveUninitialized: false, // don't save empty sessions
     cookie: {
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      httpOnly: true, // prevent JS access to cookie (secure)
+      secure: true, // only send cookie over HTTPS
+      sameSite: "strict", // CSRF protection
     },
   })
 );
