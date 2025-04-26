@@ -25,7 +25,7 @@ app.set('trust proxy', 1);
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET, // REQUIRED: set in .env file securely
+    secret: "Anuj1365@bcajwoj", // REQUIRED: set in .env file securely
     resave: false, // don't save session if unmodified
     saveUninitialized: false, // don't save empty sessions
     cookie: {
